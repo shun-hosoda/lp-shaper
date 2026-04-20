@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 11, "column": 0}, "map": {"version":3,"sources":["file:///C:/Work_Private/01_Project/31_lp-shaper/lp-shaper/frontend/src/app/page.tsx"],"sourcesContent":["import { redirect } from 'next/navigation'\r\n\r\n/**\r\n * Root page — 認証状態によってリダイレクト。\r\n * 実際のリダイレクトは middleware.ts が担当するため、\r\n * ここには到達しないが念のため /login へ転送する。\r\n */\r\nexport default function RootPage() {\r\n  redirect('/login')\r\n}\r\n"],"names":[],"mappings":";;;;AAAA;AAAA;;AAOe,SAAS;IACtB,IAAA,iMAAQ,EAAC;AACX","debugId":null}}]
+}
