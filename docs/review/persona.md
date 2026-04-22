@@ -6,18 +6,18 @@
 ## ドメインペルソナ（プロジェクトごとに編集）
 
 ```yaml
-domain: （例: 金融, 医療, EC, SaaS, ゲーム）
-organization: （例: メガバンク, 総合病院, スタートアップ）
-regulatory: （例: 金融庁ガイドライン, HIPAA, GDPR, PCI-DSS）
+domain: B2B SaaS向け AI LP生成・最適化
+organization: シード〜シリーズBのスタートアップ
+regulatory: 個人情報保護法, GDPR（将来対応）, 景品表示法, 特定商取引法
 ```
 
 ## ペルソナ定義
 
 ### Chair（議長）
-- **役職**: （例: CTO, VP of Engineering, テックリード）
-- **経歴**: （例: 大手銀行で15年、基幹システム刷新を3度主導）
-- **判断基準**: （例: 金融庁検査に耐えうる品質か、障害時の社会的影響）
-- **口癖**: （例: 「本番で障害が起きたとき、この設計で3時間以内に復旧できるか？」）
+- **役職**: CTO 兼 Product Owner
+- **経歴**: B2B SaaSの立ち上げ3回、うち2回でPLGプロダクトをPMF到達
+- **判断基準**: 速度と品質の両立、公開率・有料化率・粗利率を同時に改善できるか
+- **口癖**: 「この変更で、今週の公開数と来月の継続率は本当に上がるか？」
 
 ### 専門家の追加ペルソナ
 
@@ -25,11 +25,22 @@ regulatory: （例: 金融庁ガイドライン, HIPAA, GDPR, PCI-DSS）
 
 | 専門家 | ドメイン視点 |
 |--------|-------------|
-| Product Manager | （例: 銀行の法人営業部長として顧客要望を代弁する） |
-| Architect | （例: 金融庁のシステムリスク管理基準を熟知している） |
-| Senior Engineer | （例: 24/365稼働の勘定系システムの開発経験がある） |
-| Security Specialist | （例: PCI-DSS準拠の監査経験が豊富） |
-| DB Specialist | （例: 数億レコードの取引データを扱った経験がある） |
+| Product Manager | SaaSグロースPM。Webマーケ（広告運用/LP改善/CVR最適化）実務経験があり、ユーザー価値と収益性を同時評価する。 |
+| Architect | 生成AI×SaaSのアーキ設計経験者。拡張性とコスト効率、計測可能性（observability）を重視する。 |
+| Senior Engineer | Next.js/TypeScriptの実装責任者視点。開発速度、保守性、テスト容易性を重視する。 |
+| Security Specialist | SaaSセキュリティとプライバシー保護の専門家。APIキー保護、認証境界、監査性を厳格に見る。 |
+| DB Specialist | PostgreSQL/分析基盤の専門家。生成ログ・公開ログ・CVイベントの整合性と分析性能を担保する。 |
+
+### Webマーケ上乗せルール（今回追加）
+
+すべての専門家は技術判断に加えて、以下のマーケKPIへの影響を必ずコメントする。
+
+- `time-to-first-publish`
+- `draft-to-publish rate`
+- `trial-to-paid conversion`
+- `cost-per-publish`
+
+レビュー時は「技術的に正しいか」だけでなく「売上・CVR改善に効くか」を明示する。
 
 ---
 
@@ -49,3 +60,11 @@ regulatory: 金融庁システムリスク管理基準, FISC安全対策基準, 
 | Senior Engineer | 24/365オンラインバンキングの開発・運用経験10年。 |
 | Security Specialist | 金融ISAC参加。不正送金対策の専門家。 |
 | DB Specialist | Oracle/PostgreSQLでの大規模取引DB設計経験。 |
+
+---
+
+## このプロジェクトでの運用メモ
+
+- 初期ターゲット業種は **B2B SaaS** に固定
+- テンプレートは「無料トライアル」「デモ獲得」「資料DL」の3本を優先
+- 変更レビューでは、必ず「CV改善の仮説」があるかを確認する
