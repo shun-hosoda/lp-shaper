@@ -10,7 +10,72 @@ servers:
   - url: http://localhost:3000
     description: Local development
 
-paths: {}
+paths:
+  /api/lp/projects:
+    post:
+      summary: LPプロジェクト作成
+      operationId: createLpProject
+      tags: [lp]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+
+  /api/lp/projects/{projectId}/draft:
+    put:
+      summary: LPドラフト保存
+      operationId: saveLpDraft
+      tags: [lp]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveDraftRequest'
+      responses:
+        '200':
+          description: 保存成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageVersionResponse'
+
+  /api/lp/projects/{projectId}/publish:
+    post:
+      summary: LP公開
+      operationId: publishLp
+      tags: [lp]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 公開成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishResponse'
+
   # /example:
   #   get:
   #     summary: サンプルエンドポイント
@@ -25,7 +90,79 @@ paths: {}
   #               $ref: '#/components/schemas/ExampleResponse'
 
 components:
-  schemas: {}
+  schemas:
+    CreateProjectRequest:
+      type: object
+      required: [title, category]
+      properties:
+        title:
+          type: string
+          maxLength: 120
+        category:
+          type: string
+          enum: [coaching, creative-service, photography-branding]
+
+    SaveDraftRequest:
+      type: object
+      required: [lpStructureJson]
+      properties:
+        lpStructureJson:
+          type: object
+          additionalProperties: true
+
+    ProjectResponse:
+      type: object
+      required: [id, title, category, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+          enum: [draft, published]
+        createdAt:
+          type: string
+          format: date-time
+
+    PageVersionResponse:
+      type: object
+      required: [id, projectId, versionNo, state, savedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+        versionNo:
+          type: integer
+        state:
+          type: string
+          enum: [draft, published]
+        savedAt:
+          type: string
+          format: date-time
+
+    PublishResponse:
+      type: object
+      required: [projectId, versionId, publishedUrl, publishedAt]
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        versionId:
+          type: string
+          format: uuid
+        publishedUrl:
+          type: string
+          format: uri
+        publishedAt:
+          type: string
+          format: date-time
     # ExampleResponse:
     #   type: object
     #   required: [id, name]

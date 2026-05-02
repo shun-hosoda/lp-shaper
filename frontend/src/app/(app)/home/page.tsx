@@ -37,7 +37,21 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-4 py-8 space-y-4">
+        {/* LP作成CTA */}
+        <div className="bg-indigo-600 rounded-xl p-6 text-white shadow-sm">
+          <p className="text-sm text-indigo-200 mb-1">LP Builder</p>
+          <h2 className="text-lg font-semibold mb-3">新しいLPを作成する</h2>
+          <a
+            href="/lp-builder"
+            className="inline-block bg-white text-indigo-600 font-medium text-sm
+              rounded-lg px-4 py-2 hover:bg-indigo-50 transition-colors"
+          >
+            作成を始める →
+          </a>
+        </div>
+
+        {/* プロフィール */}
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
           <p className="text-slate-700">
             ようこそ、<span className="font-medium text-slate-900">{profile?.display_name ?? user?.email}</span> さん

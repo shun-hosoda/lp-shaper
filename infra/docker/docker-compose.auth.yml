@@ -108,11 +108,10 @@ services:
     volumes:
       - ./volumes/db/migrations:/migrations:ro
     command: >
-      psql
-        -h db
-        -U supabase_admin
-        -d ${POSTGRES_DB:-postgres}
-        -f /migrations/02_post_auth_setup.sql
+      sh -c "
+        psql -h db -U supabase_admin -d ${POSTGRES_DB:-postgres} -f /migrations/02_post_auth_setup.sql &&
+        psql -h db -U supabase_admin -d ${POSTGRES_DB:-postgres} -f /migrations/03_lp_builder.sql
+      "
 
 volumes:
   db-data:

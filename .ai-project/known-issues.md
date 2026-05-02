@@ -19,3 +19,18 @@
 
 - `credential-manager-core` 警告が表示されるが、push自体は成功する場合あり。
 - 対策: 実際の push 成否をリモート反映で確認する。
+
+## 5. Supabase v2.103+ GenericTable型制約回避（技術的負債）
+
+- `frontend/src/actions/lp.ts` にて `type Db = SupabaseClient<any>` + `as unknown as Db` キャストを使用。
+- 原因: SDK v2.103+ の GenericTable 型制約が厳格化し、手動管理の `supabase.ts` では新テーブルのInsert操作で `type: never` エラーになる。
+- 現状の型安全性の担保: Zodバリデーション（入力側）+ `satisfies` 型アサーション（戻り値側）
+- 解決策候補: Supabase CLI `generate types` で自動生成した型定義に置き換える（CI組み込みが前提）。
+- 優先度: Medium（MVP完了後に対応）
+
+## 6. saveDraft の version_no 採番（楽観的ロック未対応）
+
+- `MAX(version_no) + 1` による採番のため、同一プロジェクトへの並行 `saveDraft` 呼び出しで UNIQUE制約違反 `(project_id, version_no)` が発生する可能性がある。
+- 現状: MVPユーザーは個人事業主の単一ユーザー操作が前提のため実発生リスクは極低。DB側の UNIQUE制約でデータ破損は防止される。
+- 解決策候補: DBシーケンス or `SELECT ... FOR UPDATE` による排他ロック。
+- 優先度: Low（ユーザー規模拡大後に対応）
