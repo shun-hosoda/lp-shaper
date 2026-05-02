@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { createProject, saveDraft, publishLp } from '@/actions/lp'
 import { LP_CATEGORIES, LP_CATEGORY_LABELS } from '@/lib/validations/lp'
 import type { LpProject, PageVersion, LpStructure } from '@/types/lp'
@@ -10,7 +9,6 @@ type Step = 'create' | 'edit' | 'published'
 
 /** LP Builder — 最小構成（骨格実装 / LLM生成は後フェーズ） */
 export default function LpBuilderPage() {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   const [step, setStep] = useState<Step>('create')
@@ -96,12 +94,12 @@ export default function LpBuilderPage() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button
-            onClick={() => router.push('/home')}
+          <a
+            href="/home"
             className="text-slate-400 hover:text-slate-600 text-sm"
           >
             ← ホームへ
-          </button>
+          </a>
           <h1 className="text-lg font-semibold text-slate-900">LP作成</h1>
         </div>
       </header>
@@ -329,13 +327,13 @@ export default function LpBuilderPage() {
               >
                 LPを確認する →
               </a>
-              <button
-                onClick={() => router.push('/home')}
+              <a
+                href="/home"
                 className="px-4 py-2 bg-white border border-slate-300 hover:border-slate-400
                   text-slate-700 text-sm font-medium rounded-lg transition-colors"
               >
                 ホームへ戻る
-              </button>
+              </a>
             </div>
           </div>
         )}
