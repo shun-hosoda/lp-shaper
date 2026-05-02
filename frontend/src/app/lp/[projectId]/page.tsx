@@ -1,9 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
+import { getAdminClient } from '@/lib/supabase/admin'
 import type { LpStructure } from '@/types/lp'
 import { notFound } from 'next/navigation'
-import type { SupabaseClient } from '@supabase/supabase-js'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Db = SupabaseClient<any>
 
 interface Props {
   params: Promise<{ projectId: string }>
@@ -15,14 +12,19 @@ interface Props {
  */
 export default async function PublicLpPage({ params }: Props) {
   const { projectId } = await params
-  const supabase = (await createClient()) as unknown as Db
+  let supabase: ReturnType<typeof getAdminClient>
+  try {
+    supabase = getAdminClient()
+  } catch {
+    notFound()
+  }
 
   // page_versions から最新 published バージョンを取得
   const { data, error } = await supabase
     .from('page_versions')
     .select('lp_structure_json, version_no, projects(title, category)')
     .eq('project_id', projectId)
-    .eq('status', 'published')
+    .eq('state', 'published')
     .order('version_no', { ascending: false })
     .limit(1)
     .maybeSingle()

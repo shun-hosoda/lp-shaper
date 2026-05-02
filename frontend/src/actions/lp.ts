@@ -44,6 +44,64 @@ export async function getProjects(): Promise<ActionResult<LpProject[]>> {
 }
 
 // ===============================================================
+// getProjectEditorData — 編集画面初期データ取得
+// ===============================================================
+export async function getProjectEditorData(
+  projectId: string,
+): Promise<ActionResult<{ project: LpProject; pageVersion: PageVersion | null }>> {
+  const supabase = (await createClient()) as unknown as Db
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '認証が必要です' }
+
+  const { data: project, error: projectError } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('id', projectId)
+    .eq('owner_user_id', user.id)
+    .single()
+
+  if (projectError || !project) {
+    return { error: 'プロジェクトが見つかりません' }
+  }
+
+  const { data: latestVersion } = await supabase
+    .from('page_versions')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('version_no', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  return {
+    data: {
+      project: {
+        id: project.id,
+        ownerUserId: project.owner_user_id,
+        title: project.title,
+        category: project.category,
+        status: project.status,
+        publishedUrl: project.published_url ?? null,
+        createdAt: project.created_at,
+        updatedAt: project.updated_at,
+      } satisfies LpProject,
+      pageVersion: latestVersion
+        ? {
+            id: latestVersion.id,
+            projectId: latestVersion.project_id,
+            versionNo: latestVersion.version_no,
+            state: latestVersion.state,
+            lpStructureJson: latestVersion.lp_structure_json as unknown as LpStructure,
+            createdAt: latestVersion.created_at,
+          } satisfies PageVersion
+        : null,
+    },
+  }
+}
+
+// ===============================================================
 // createProject — プロジェクト作成
 // ===============================================================
 export async function createProject(

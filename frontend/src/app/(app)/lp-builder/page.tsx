@@ -1,8 +1,8 @@
 ﻿'use client'
 
-import { useState, useTransition, Suspense } from 'react'
+import { useEffect, useState, useTransition, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { createProject, saveDraft, publishLp } from '@/actions/lp'
+import { createProject, getProjectEditorData, saveDraft, publishLp } from '@/actions/lp'
 import { LP_CATEGORIES, LP_CATEGORY_LABELS } from '@/lib/validations/lp'
 import type { LpProject, PageVersion, LpStructure } from '@/types/lp'
 
@@ -28,6 +28,47 @@ function LpBuilderInner() {
   const [ctaUrl, setCtaUrl] = useState('')
   const [heroHeading, setHeroHeading] = useState('')
   const [heroBody, setHeroBody] = useState('')
+
+  useEffect(() => {
+    if (!editId) return
+
+    let cancelled = false
+    setError(null)
+
+    startTransition(async () => {
+      const result = await getProjectEditorData(editId)
+      if (cancelled) return
+
+      if ('error' in result) {
+        setError(result.error)
+        setStep('create')
+        return
+      }
+
+      const loadedProject = result.data.project
+      const loadedVersion = result.data.pageVersion
+      const heroSection = loadedVersion?.lpStructureJson.sections.find((section) => section.type === 'hero')
+
+      setProject(loadedProject)
+      setTitle(loadedProject.title)
+      setCategory(loadedProject.category)
+      setStep('edit')
+
+      if (!loadedVersion) return
+
+      setPageVersion(loadedVersion)
+      setMetaTitle(loadedVersion.lpStructureJson.meta.title ?? '')
+      setMetaDescription(loadedVersion.lpStructureJson.meta.description ?? '')
+      setCtaLabel(loadedVersion.lpStructureJson.meta.ctaLabel ?? '今すぐ申し込む')
+      setCtaUrl(loadedVersion.lpStructureJson.meta.ctaUrl ?? '')
+      setHeroHeading(heroSection?.heading ?? '')
+      setHeroBody(heroSection?.body ?? '')
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [editId])
 
   const previewStructure: LpStructure = {
     schemaVersion: '0.1',
