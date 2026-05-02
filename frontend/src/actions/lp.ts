@@ -2,13 +2,46 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createProjectSchema, saveDraftSchema } from '@/lib/validations/lp'
-import type { ActionResult, LpProject, LpStructure, PageVersion } from '@/types/lp'
+import type { ActionResult, LpCategory, LpProject, LpStructure, PageVersion, ProjectStatus } from '@/types/lp'
 import type { CreateProjectInput, SaveDraftInput } from '@/lib/validations/lp'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 /** DB操作共通: Supabase SDKのGenericTable型を回避するためanyでキャスト */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any>
+
+// ===============================================================
+// getProjects — LP一覧取得
+// ===============================================================
+export async function getProjects(): Promise<ActionResult<LpProject[]>> {
+  const supabase = (await createClient()) as unknown as Db
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '認証が必要です' }
+
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('owner_user_id', user.id)
+    .order('updated_at', { ascending: false })
+
+  if (error) return { error: 'LP一覧の取得に失敗しました' }
+
+  return {
+    data: (data ?? []).map((d: Record<string, unknown>) => ({
+      id: d.id as string,
+      ownerUserId: d.owner_user_id as string,
+      title: d.title as string,
+      category: d.category as LpCategory,
+      status: d.status as ProjectStatus,
+      publishedUrl: (d.published_url as string | null) ?? null,
+      createdAt: d.created_at as string,
+      updatedAt: d.updated_at as string,
+    })),
+  }
+}
 
 // ===============================================================
 // createProject — プロジェクト作成

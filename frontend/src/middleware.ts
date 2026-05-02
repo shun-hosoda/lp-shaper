@@ -16,9 +16,10 @@ const PUBLIC_PATHS = [
   '/reset-password',
 ]
 
-/** /auth/* パスは GoTrue コールバック含めすべて公開 */
+/** /auth/* および /lp/* パスは認証不要 */
 function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/auth/')) return true
+  if (pathname.startsWith('/lp/')) return true
   return PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(p + '/')
   )
