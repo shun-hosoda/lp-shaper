@@ -44,6 +44,7 @@ export async function createProject(
     .single()
 
   if (error || !data) {
+    console.error('[createProject] DB error:', error)
     return { error: 'プロジェクトの作成に失敗しました' }
   }
 

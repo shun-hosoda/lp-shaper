@@ -106,7 +106,20 @@ CREATE POLICY "projects: delete own"
   ON public.projects FOR DELETE
   USING (auth.uid() = owner_user_id);
 
--- page_versions RLS（projectsのオーナー経由で制御）
+-- =============================================================
+-- Grant permissions to authenticated / anon roles
+-- =============================================================
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.projects      TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.page_versions TO authenticated;
+GRANT SELECT, INSERT               ON public.lp_events      TO authenticated;
+
+-- anon role は読み取り不要（RLSで制御するが念のため）
+-- service_role はすべてのテーブルに対してフルアクセス
+GRANT ALL ON public.projects      TO service_role;
+GRANT ALL ON public.page_versions TO service_role;
+GRANT ALL ON public.lp_events     TO service_role;
 ALTER TABLE public.page_versions ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "page_versions: select via project" ON public.page_versions;
