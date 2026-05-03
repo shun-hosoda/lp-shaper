@@ -56,3 +56,4 @@ pnpm-debug.log*
 
 # Docker volumes (runtime data)
 infra/docker/volumes/db/data/
+infra/docker/volumes/db/test_insert.sql
