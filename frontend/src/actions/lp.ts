@@ -2,9 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createProjectSchema, saveDraftSchema } from '@/lib/validations/lp'
-import type { ActionResult, LpCategory, LpProject, LpStructure, PageVersion, ProjectStatus } from '@/types/lp'
+import type { ActionResult, LpCategory, LpProject, LpStructure, PageVersion, ProjectStatus, ValidationIssue } from '@/types/lp'
 import type { CreateProjectInput, SaveDraftInput } from '@/lib/validations/lp'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { migrateLpStructure } from '@/lib/lp-schema-migration'
+import { validateLpForPublish } from '@/lib/validations/lp-publish'
 
 /** DB操作共通: Supabase SDKのGenericTable型を回避するためanyでキャスト */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,7 +95,7 @@ export async function getProjectEditorData(
             projectId: latestVersion.project_id,
             versionNo: latestVersion.version_no,
             state: latestVersion.state,
-            lpStructureJson: latestVersion.lp_structure_json as unknown as LpStructure,
+            lpStructureJson: migrateLpStructure(latestVersion.lp_structure_json),
             createdAt: latestVersion.created_at,
           } satisfies PageVersion
         : null,
@@ -259,7 +261,7 @@ export async function publishLp(
   // 最新ドラフトバージョン取得
   const { data: latestVersion } = await supabase
     .from('page_versions')
-    .select('id, version_no')
+    .select('id, version_no, lp_structure_json')
     .eq('project_id', projectId)
     .order('version_no', { ascending: false })
     .limit(1)
@@ -267,6 +269,15 @@ export async function publishLp(
 
   if (!latestVersion) {
     return { error: '公開できるドラフトがありません' }
+  }
+
+  // 公開前バリデーション（errorレベルのissueはブロック）
+  const structure = migrateLpStructure(latestVersion.lp_structure_json)
+  const issues: ValidationIssue[] = validateLpForPublish(structure)
+  const blockingErrors = issues.filter((i) => i.level === 'error')
+  if (blockingErrors.length > 0) {
+    const msg = blockingErrors.map((i) => i.message).join(' / ')
+    return { error: `公開できません: ${msg}`, issues }
   }
 
   // page_versionsをpublishedに更新

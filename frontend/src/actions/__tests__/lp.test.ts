@@ -170,7 +170,31 @@ describe('publishLp action', () => {
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { id: 'ver-1', version_no: 1 }, error: null }),
+      single: vi.fn().mockResolvedValue({
+        data: {
+          id: 'ver-1',
+          version_no: 1,
+          lp_structure_json: {
+            schemaVersion: '0.2',
+            meta: {
+              title: 'テストLP',
+              description: '',
+              ctaLabel: '申し込む',
+              ctaUrl: 'https://example.com',
+            },
+            sections: [
+              {
+                id: 'sec-1',
+                type: 'hero',
+                variant: 'minimal',
+                heading: '見出し',
+                body: '本文',
+              },
+            ],
+          },
+        },
+        error: null,
+      }),
     }
     // page_versions更新
     const updateVersionChain = buildUpdateChain({ error: null })

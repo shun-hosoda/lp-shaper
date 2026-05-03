@@ -40,7 +40,7 @@ describe('register action', () => {
       email: 'user@example.com',
       password: 'password123',
       options: {
-        emailRedirectTo: expect.stringContaining('/auth/callback'),
+        emailRedirectTo: expect.stringContaining('/auth/confirm'),
       },
     })
   })
